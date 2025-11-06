@@ -21,6 +21,10 @@ export default function Page() {
     : (isPending ? 'Connecting...' : 'Connect Wallet');
   const dappHost = typeof window !== 'undefined' ? window.location.host + (window.location.pathname || '') : '';
   const metamaskDeepLink = `https://metamask.app.link/dapp/${dappHost}`;
+  const onMintClick = () => {
+    if (isConnected) setIsModalOpen(true);
+    else setIsWalletOpen(true);
+  };
 
   return (
     <>
@@ -92,7 +96,7 @@ export default function Page() {
                   <span>By OpenSea</span>
                   <Link className="hover" href="https://etherscan.io/address/0x495f947276749Ce646f68AC8c248420045cb7b5e" target="_blank">View on Etherscan</Link>
                 </div>
-                <div className="lable_miting" onClick={() => setIsModalOpen(true)}>
+                <div className="lable_miting" onClick={onMintClick}>
                   <div className="lable_dot"><div /><div className="amin" /></div>
                   <div className="lable_btn">Mint Now</div>
                 </div>
@@ -165,7 +169,7 @@ export default function Page() {
                     <div className="int">{amount}</div>
                     <div className="plus" onClick={() => setAmount((a)=>a+1)}><span>+</span></div>
                   </div>
-                  <div className="connectButton mint interact-button" id="messageButton" style={{cursor:'pointer'}} onClick={() => setIsModalOpen(true)}>
+                  <div className="connectButton mint interact-button" id="messageButton" style={{cursor:'pointer'}} onClick={onMintClick}>
                     <a>Mint</a>
                   </div>
                 </div>
