@@ -11,7 +11,11 @@ const config = createConfig({
   transports: {
     [mainnet.id]: http(),
   },
-  connectors: [injected()],
+  connectors: [
+    injected({ target: 'metaMask' }),
+    injected({ target: 'coinbaseWallet' }),
+    injected(),
+  ],
 });
 
 export default function Providers({ children }: { children: ReactNode }) {
