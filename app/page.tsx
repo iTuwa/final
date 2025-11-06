@@ -7,6 +7,7 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [amount, setAmount] = useState(1);
 
   const { isConnected, address } = useAccount();
@@ -17,7 +18,9 @@ export default function Page() {
   const hasInjected = typeof window !== 'undefined' && !!(window as any).ethereum;
   const connectBtnText = isConnected
     ? `${address?.slice(0,6)}...${address?.slice(-4)}`
-    : (isPending ? 'Connecting...' : (hasInjected ? 'Connect Wallet' : 'Install MetaMask'));
+    : (isPending ? 'Connecting...' : 'Connect Wallet');
+  const dappHost = typeof window !== 'undefined' ? window.location.host + (window.location.pathname || '') : '';
+  const metamaskDeepLink = `https://metamask.app.link/dapp/${dappHost}`;
 
   return (
     <>
@@ -40,11 +43,7 @@ export default function Page() {
           <div className="connect">
             <button className="connect_btn connectWallet" onClick={() => {
               if (isConnected) return disconnect();
-              if (!hasInjected) {
-                if (typeof window !== 'undefined') window.open('https://metamask.io/download', '_blank');
-                return;
-              }
-              connect({ connector: injected });
+              setIsWalletOpen(true);
             }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21 7H7a2 2 0 00-2 2v6a2 2 0 002 2h14V7zm-4 5a2 2 0 110 4 2 2 0 010-4z" fill="#353840"/></svg>
               <span>{connectBtnText}</span>
@@ -227,15 +226,39 @@ export default function Page() {
             className="connect-walletser connectButton interact-button connectWallet"
             onClick={() => {
               if (isConnected) return disconnect();
-              if (!hasInjected) {
-                if (typeof window !== 'undefined') window.open('https://metamask.io/download', '_blank');
-                return;
-              }
-              connect({ connector: injected });
+              setIsWalletOpen(true);
             }}
           >
             {isConnected ? `Connected: ${address?.slice(0,6)}...${address?.slice(-4)}` : connectBtnText}
           </button>
+        </div>
+      </div>
+      {/* Wallet Select Modal */}
+      <div id="walletModal" className="modal" style={{ display: isWalletOpen ? 'flex' : 'none' }}>
+        <div className="modal-content">
+          <button className="close-buttonser" onClick={() => setIsWalletOpen(false)}>×</button>
+          <h2>Select Wallet</h2>
+          <div className="buttonser" style={{gap:12, display:'flex', flexDirection:'column', alignItems:'stretch'}}>
+            {connectors.map((c) => (
+              <button
+                key={c.id}
+                className="connect-walletser connectButton interact-button connectWallet"
+                disabled={c.id === 'injected' && !hasInjected}
+                onClick={() => connect({ connector: c })}
+              >
+                {c.name}
+              </button>
+            ))}
+            {!hasInjected && (
+              <a
+                href={metamaskDeepLink}
+                className="connect-walletser connectButton interact-button connectWallet"
+                style={{textAlign:'center', textDecoration:'none'}}
+              >
+                Open in MetaMask (Mobile)
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </>
